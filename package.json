@@ -19,7 +19,8 @@
     "start": "gulp && gulp watch",
     "test": "gulp && testem ci",
     "build": "gulp",
-    "docs": "jsdoc -c ./gulp/util/jsdoc.conf.json -R README.md"
+    "docs": "jsdoc -c ./gulp/util/jsdoc.conf.json -R README.md",
+    "example": "simplehttpserver . & open http://localhost:8000/example/filter/"
   },
   "files": [
     "bin/",
