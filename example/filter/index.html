@@ -25,21 +25,27 @@
 
       document.body.appendChild(renderer.view);
 
-      var filtersSwitchs = [false];
+      var filtersSwitchs = [false, false];
       var gui = new dat.GUI({
         // height: 5 * 32 - 1,
         // width: 350
       });
 
-      // Ascii Filter
+      // Amaro Filter
 
-      var asciiFilter = new PIXI.filters.AsciiFilter();
-      var asciiFolder = gui.addFolder('Ascii');
+      var amaroFilter = new PIXI.filters.AmaroFilter(PIXI.Texture.fromImage("filter.png"));
+      var amaroFolder = gui.addFolder('Amaro');
 
-      asciiFolder.add(filtersSwitchs, '0').name("apply");
-      asciiFolder.add(asciiFilter, 'size', 0.0, 10.0)
+      amaroFolder.add(filtersSwitchs, '0').name("apply");
 
-      var filterCollection = [asciiFilter];
+      // Amaro Filter
+
+      var hudsonFilter = new PIXI.filters.HudsonFilter(PIXI.Texture.fromImage("hudson.png"));
+      var hudsonFolder = gui.addFolder('Hudson');
+
+      hudsonFolder.add(filtersSwitchs, '1').name("apply");
+
+      var filterCollection = [amaroFilter, hudsonFilter];
       var container = new PIXI.Container();
 
       var image = PIXI.Sprite.fromImage("image.jpg");
