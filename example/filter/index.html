@@ -25,27 +25,104 @@
 
       document.body.appendChild(renderer.view);
 
-      var filtersSwitchs = [false, false];
+      var filtersSwitchs = [false, false, false, false, false, false, false, false, false, false, false, false, false];
       var gui = new dat.GUI({
         // height: 5 * 32 - 1,
         // width: 350
       });
 
-      // Amaro Filter
+      // Universal Filter
 
-      var amaroFilter = new PIXI.filters.AmaroFilter(PIXI.Texture.fromImage("filter.png"));
-      var amaroFolder = gui.addFolder('Amaro');
+      var universalFilter = new PIXI.filters.LookupFilter(PIXI.Texture.fromImage("lut/Universal.png"));
+      var universalFolder = gui.addFolder('Universal');
 
-      amaroFolder.add(filtersSwitchs, '0').name("apply");
+      universalFolder.add(filtersSwitchs, '0').name("apply");
 
-      // Amaro Filter
+      // Future Filter
 
-      var hudsonFilter = new PIXI.filters.HudsonFilter(PIXI.Texture.fromImage("hudson.png"));
-      var hudsonFolder = gui.addFolder('Hudson');
+      var futureFilter = new PIXI.filters.LookupFilter(PIXI.Texture.fromImage("lut/Future.png"));
+      var futureFolder = gui.addFolder('Future');
 
-      hudsonFolder.add(filtersSwitchs, '1').name("apply");
+      futureFolder.add(filtersSwitchs, '1').name("apply");
 
-      var filterCollection = [amaroFilter, hudsonFilter];
+      // Surreal Filter
+
+      var surrealFilter = new PIXI.filters.LookupFilter(PIXI.Texture.fromImage("lut/Surreal.png"));
+      var surrealFolder = gui.addFolder('Surreal');
+
+      surrealFolder.add(filtersSwitchs, '2').name("apply");
+
+      // Mechanical Filter
+
+      var mechanicalFilter = new PIXI.filters.LookupFilter(PIXI.Texture.fromImage("lut/Mechanical.png"));
+      var mechanicalFolder = gui.addFolder('Mechanical');
+
+      mechanicalFolder.add(filtersSwitchs, '3').name("apply");
+
+      // Techie Filter
+
+      var techieFilter = new PIXI.filters.LookupFilter(PIXI.Texture.fromImage("lut/Techie.png"));
+      var techieFolder = gui.addFolder('Techie');
+
+      techieFolder.add(filtersSwitchs, '4').name("apply");
+
+      // Fashion Filter
+
+      var fashionFilter = new PIXI.filters.LookupFilter(PIXI.Texture.fromImage("lut/Fashion.jpg"));
+      var fashionFolder = gui.addFolder('Fashion');
+
+      fashionFolder.add(filtersSwitchs, '5').name("apply");
+
+      // Toy Filter
+
+      var toyFilter = new PIXI.filters.LookupFilter(PIXI.Texture.fromImage("lut/Toy.jpg"));
+      var toyFolder = gui.addFolder('Toy');
+
+      toyFolder.add(filtersSwitchs, '6').name("apply");
+
+      // Vintage Filter
+
+      var vintageFilter = new PIXI.filters.LookupFilter(PIXI.Texture.fromImage("lut/Vintage.png"));
+      var vintageFolder = gui.addFolder('Vintage');
+
+      vintageFolder.add(filtersSwitchs, '7').name("apply");
+
+      // Sci-Fi Filter
+
+      var scifiFilter = new PIXI.filters.LookupFilter(PIXI.Texture.fromImage("lut/Sci-Fi.png"));
+      var scifiFolder = gui.addFolder('Sci-Fi');
+
+      scifiFolder.add(filtersSwitchs, '8').name("apply");
+
+      // Cyber Filter
+
+      var cyberFilter = new PIXI.filters.LookupFilter(PIXI.Texture.fromImage("lut/Cyber.png"));
+      var cyberFolder = gui.addFolder('Cyber');
+
+      cyberFolder.add(filtersSwitchs, '9').name("apply");
+
+      // Ruby Filter
+
+      var rubyFilter = new PIXI.filters.LookupFilter(PIXI.Texture.fromImage("lut/Ruby.jpg"));
+      var rubyFolder = gui.addFolder('Ruby');
+
+      rubyFolder.add(filtersSwitchs, '10').name("apply");
+
+      // Sapphire Filter
+
+      var sapphireFilter = new PIXI.filters.LookupFilter(PIXI.Texture.fromImage("lut/Sapphire.jpg"));
+      var sapphireFolder = gui.addFolder('Sapphire');
+
+      sapphireFolder.add(filtersSwitchs, '11').name("apply");
+
+      // Cosmos Filter
+
+      var cosmosFilter = new PIXI.filters.LookupFilter(PIXI.Texture.fromImage("lut/Cosmos.png"));
+      var cosmosFolder = gui.addFolder('Cosmos');
+
+      cosmosFolder.add(filtersSwitchs, '12').name("apply");
+
+      var filterCollection = [universalFilter, futureFilter, surrealFilter, mechanicalFilter, techieFilter, fashionFilter, toyFilter, vintageFilter, scifiFilter, cyberFilter, rubyFilter, sapphireFilter, cosmosFilter];
       var container = new PIXI.Container();
 
       var image = PIXI.Sprite.fromImage("image.jpg");
