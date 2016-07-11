@@ -2,6 +2,7 @@
 <html>
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <title>Filters</title>
     <style>
       body {
@@ -17,10 +18,11 @@
   <body>
     <script>
       var renderer = new PIXI.WebGLRenderer(640, 640);
+      var size = window.innerWidth > window.innerHeight ? window.innerHeight : window.innerWidth;
 
       renderer.view.style.position = "absolute";
-      renderer.view.style.width = window.innerHeight + "px";
-      renderer.view.style.height = window.innerHeight + "px";
+      renderer.view.style.width = size + "px";
+      renderer.view.style.height = size + "px";
       renderer.view.style.display = "block";
 
       document.body.appendChild(renderer.view);
