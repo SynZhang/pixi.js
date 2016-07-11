@@ -35,5 +35,6 @@ module.exports = {
     TiltShiftYFilter:   require('./tiltshift/TiltShiftYFilter'),
     TwistFilter:        require('./twist/TwistFilter'),
     AmaroFilter:        require('./amaro/AmaroFilter'),
-    HudsonFilter:       require('./hudson/HudsonFilter')
+    HudsonFilter:       require('./hudson/HudsonFilter'),
+    LookupFilter:       require('./lookup/LookupFilter')
 };

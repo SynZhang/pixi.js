@@ -1,7 +1,7 @@
 /**
  * @license
  * pixi.js - v3.0.11
- * Compiled 2016-07-08T08:25:45.053Z
+ * Compiled 2016-07-11T03:51:02.501Z
  *
  * pixi.js is licensed under the MIT License.
  * http://www.opensource.org/licenses/mit-license.php
@@ -22476,7 +22476,7 @@ core.utils.uuid = function ()
     return core.utils.uid();
 };
 
-},{"./core":30,"./extras":87,"./filters":106,"./mesh":131}],81:[function(require,module,exports){
+},{"./core":30,"./extras":87,"./filters":106,"./mesh":132}],81:[function(require,module,exports){
 var core = require('../core');
 
 /**
@@ -25907,10 +25907,11 @@ module.exports = {
     TiltShiftYFilter:   require('./tiltshift/TiltShiftYFilter'),
     TwistFilter:        require('./twist/TwistFilter'),
     AmaroFilter:        require('./amaro/AmaroFilter'),
-    HudsonFilter:       require('./hudson/HudsonFilter')
+    HudsonFilter:       require('./hudson/HudsonFilter'),
+    LookupFilter:       require('./lookup/LookupFilter')
 };
 
-},{"./amaro/AmaroFilter":88,"./ascii/AsciiFilter":89,"./bloom/BloomFilter":90,"./blur/BlurDirFilter":91,"./blur/BlurFilter":92,"./blur/BlurXFilter":93,"./blur/BlurYFilter":94,"./blur/SmartBlurFilter":95,"./color/ColorMatrixFilter":96,"./color/ColorStepFilter":97,"./convolution/ConvolutionFilter":98,"./crosshatch/CrossHatchFilter":99,"./displacement/DisplacementFilter":100,"./dot/DotScreenFilter":101,"./dropshadow/DropShadowFilter":103,"./gray/GrayFilter":104,"./hudson/HudsonFilter":105,"./invert/InvertFilter":107,"./noise/NoiseFilter":108,"./pixelate/PixelateFilter":109,"./rgb/RGBSplitFilter":110,"./sepia/SepiaFilter":111,"./shockwave/ShockwaveFilter":112,"./tiltshift/TiltShiftFilter":114,"./tiltshift/TiltShiftXFilter":115,"./tiltshift/TiltShiftYFilter":116,"./twist/TwistFilter":117}],107:[function(require,module,exports){
+},{"./amaro/AmaroFilter":88,"./ascii/AsciiFilter":89,"./bloom/BloomFilter":90,"./blur/BlurDirFilter":91,"./blur/BlurFilter":92,"./blur/BlurXFilter":93,"./blur/BlurYFilter":94,"./blur/SmartBlurFilter":95,"./color/ColorMatrixFilter":96,"./color/ColorStepFilter":97,"./convolution/ConvolutionFilter":98,"./crosshatch/CrossHatchFilter":99,"./displacement/DisplacementFilter":100,"./dot/DotScreenFilter":101,"./dropshadow/DropShadowFilter":103,"./gray/GrayFilter":104,"./hudson/HudsonFilter":105,"./invert/InvertFilter":107,"./lookup/LookupFilter":108,"./noise/NoiseFilter":109,"./pixelate/PixelateFilter":110,"./rgb/RGBSplitFilter":111,"./sepia/SepiaFilter":112,"./shockwave/ShockwaveFilter":113,"./tiltshift/TiltShiftFilter":115,"./tiltshift/TiltShiftXFilter":116,"./tiltshift/TiltShiftYFilter":117,"./twist/TwistFilter":118}],107:[function(require,module,exports){
 var core = require('../../core');
 // @see https://github.com/substack/brfs/issues/25
 
@@ -25961,6 +25962,42 @@ Object.defineProperties(InvertFilter.prototype, {
 });
 
 },{"../../core":30}],108:[function(require,module,exports){
+var core = require('../../core');
+
+
+function LookupFilter(texture)
+{
+    core.AbstractFilter.call(this,
+        // vertex shader
+        null,
+        // fragment shader
+        "varying highp vec2 vTextureCoord;\n\nuniform sampler2D uSampler;\nuniform sampler2D uTexture; // lookup texture\n\nuniform lowp float intensity;\n\nvoid main()\n{\n   highp vec4 textureColor = texture2D(uSampler, vTextureCoord);\n   \n   highp float blueColor = textureColor.b * 63.0;\n   \n   highp vec2 quad1;\n   quad1.y = floor(floor(blueColor) / 8.0);\n   quad1.x = floor(blueColor) - (quad1.y * 8.0);\n   \n   highp vec2 quad2;\n   quad2.y = floor(ceil(blueColor) / 8.0);\n   quad2.x = ceil(blueColor) - (quad2.y * 8.0);\n   \n   highp vec2 texPos1;\n   texPos1.x = (quad1.x * 0.125) + 0.5/512.0 + ((0.125 - 1.0/512.0) * textureColor.r);\n   texPos1.y = (quad1.y * 0.125) + 0.5/512.0 + ((0.125 - 1.0/512.0) * textureColor.g);\n   \n   highp vec2 texPos2;\n   texPos2.x = (quad2.x * 0.125) + 0.5/512.0 + ((0.125 - 1.0/512.0) * textureColor.r);\n   texPos2.y = (quad2.y * 0.125) + 0.5/512.0 + ((0.125 - 1.0/512.0) * textureColor.g);\n   \n   lowp vec4 newColor1 = texture2D(uTexture, texPos1);\n   lowp vec4 newColor2 = texture2D(uTexture, texPos2);\n   \n   lowp vec4 newColor = mix(newColor1, newColor2, fract(blueColor));\n   gl_FragColor = mix(textureColor, vec4(newColor.rgb, textureColor.w), intensity);\n}\n",
+        // custom uniforms
+        {
+            intensity: { type: '1f', value: 1.0 },
+            uTexture: { type: 'sampler2D', value: texture }
+        }
+    );
+}
+
+LookupFilter.prototype = Object.create(core.AbstractFilter.prototype);
+LookupFilter.prototype.constructor = LookupFilter;
+module.exports = LookupFilter;
+
+Object.defineProperties(LookupFilter.prototype, {
+    intensity: {
+        get: function ()
+        {
+            return this.uniforms.intensity.value;
+        },
+        set: function (value)
+        {
+            this.uniforms.intensity.value = value;
+        }
+    }
+});
+
+},{"../../core":30}],109:[function(require,module,exports){
 var core = require('../../core');
 // @see https://github.com/substack/brfs/issues/25
 
@@ -26015,7 +26052,7 @@ Object.defineProperties(NoiseFilter.prototype, {
     }
 });
 
-},{"../../core":30}],109:[function(require,module,exports){
+},{"../../core":30}],110:[function(require,module,exports){
 var core = require('../../core');
 // @see https://github.com/substack/brfs/issues/25
 
@@ -26066,7 +26103,7 @@ Object.defineProperties(PixelateFilter.prototype, {
     }
 });
 
-},{"../../core":30}],110:[function(require,module,exports){
+},{"../../core":30}],111:[function(require,module,exports){
 var core = require('../../core');
 // @see https://github.com/substack/brfs/issues/25
 
@@ -26152,7 +26189,7 @@ Object.defineProperties(RGBSplitFilter.prototype, {
     }
 });
 
-},{"../../core":30}],111:[function(require,module,exports){
+},{"../../core":30}],112:[function(require,module,exports){
 var core = require('../../core');
 // @see https://github.com/substack/brfs/issues/25
 
@@ -26202,7 +26239,7 @@ Object.defineProperties(SepiaFilter.prototype, {
     }
 });
 
-},{"../../core":30}],112:[function(require,module,exports){
+},{"../../core":30}],113:[function(require,module,exports){
 var core = require('../../core');
 // @see https://github.com/substack/brfs/issues/25
 
@@ -26290,7 +26327,7 @@ Object.defineProperties(ShockwaveFilter.prototype, {
     }
 });
 
-},{"../../core":30}],113:[function(require,module,exports){
+},{"../../core":30}],114:[function(require,module,exports){
 var core = require('../../core');
 // @see https://github.com/substack/brfs/issues/25
 
@@ -26415,7 +26452,7 @@ Object.defineProperties(TiltShiftAxisFilter.prototype, {
     }
 });
 
-},{"../../core":30}],114:[function(require,module,exports){
+},{"../../core":30}],115:[function(require,module,exports){
 var core = require('../../core'),
     TiltShiftXFilter = require('./TiltShiftXFilter'),
     TiltShiftYFilter = require('./TiltShiftYFilter');
@@ -26525,7 +26562,7 @@ Object.defineProperties(TiltShiftFilter.prototype, {
     }
 });
 
-},{"../../core":30,"./TiltShiftXFilter":115,"./TiltShiftYFilter":116}],115:[function(require,module,exports){
+},{"../../core":30,"./TiltShiftXFilter":116,"./TiltShiftYFilter":117}],116:[function(require,module,exports){
 var TiltShiftAxisFilter = require('./TiltShiftAxisFilter');
 
 /**
@@ -26563,7 +26600,7 @@ TiltShiftXFilter.prototype.updateDelta = function ()
     this.uniforms.delta.value.y = dy / d;
 };
 
-},{"./TiltShiftAxisFilter":113}],116:[function(require,module,exports){
+},{"./TiltShiftAxisFilter":114}],117:[function(require,module,exports){
 var TiltShiftAxisFilter = require('./TiltShiftAxisFilter');
 
 /**
@@ -26601,7 +26638,7 @@ TiltShiftYFilter.prototype.updateDelta = function ()
     this.uniforms.delta.value.y = dx / d;
 };
 
-},{"./TiltShiftAxisFilter":113}],117:[function(require,module,exports){
+},{"./TiltShiftAxisFilter":114}],118:[function(require,module,exports){
 var core = require('../../core');
 // @see https://github.com/substack/brfs/issues/25
 
@@ -26686,7 +26723,7 @@ Object.defineProperties(TwistFilter.prototype, {
     }
 });
 
-},{"../../core":30}],118:[function(require,module,exports){
+},{"../../core":30}],119:[function(require,module,exports){
 (function (global){
 // run the polyfills
 require('./polyfill');
@@ -26718,7 +26755,7 @@ Object.assign(core, require('./deprecation'));
 global.PIXI = core;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./accessibility":22,"./core":30,"./deprecation":80,"./extras":87,"./filters":106,"./interaction":121,"./loaders":124,"./mesh":131,"./polyfill":136}],119:[function(require,module,exports){
+},{"./accessibility":22,"./core":30,"./deprecation":80,"./extras":87,"./filters":106,"./interaction":122,"./loaders":125,"./mesh":132,"./polyfill":137}],120:[function(require,module,exports){
 var core = require('../core');
 
 /**
@@ -26767,7 +26804,7 @@ InteractionData.prototype.getLocalPosition = function (displayObject, point, glo
     return displayObject.worldTransform.applyInverse(globalPos || this.global, point);
 };
 
-},{"../core":30}],120:[function(require,module,exports){
+},{"../core":30}],121:[function(require,module,exports){
 var core = require('../core'),
     InteractionData = require('./InteractionData');
 
@@ -27673,7 +27710,7 @@ InteractionManager.prototype.destroy = function () {
 core.WebGLRenderer.registerPlugin('interaction', InteractionManager);
 core.CanvasRenderer.registerPlugin('interaction', InteractionManager);
 
-},{"../core":30,"./InteractionData":119,"./interactiveTarget":122}],121:[function(require,module,exports){
+},{"../core":30,"./InteractionData":120,"./interactiveTarget":123}],122:[function(require,module,exports){
 /**
  * @file        Main export of the PIXI interactions library
  * @author      Mat Groves <mat@goodboydigital.com>
@@ -27690,7 +27727,7 @@ module.exports = {
     interactiveTarget:  require('./interactiveTarget')
 };
 
-},{"./InteractionData":119,"./InteractionManager":120,"./interactiveTarget":122}],122:[function(require,module,exports){
+},{"./InteractionData":120,"./InteractionManager":121,"./interactiveTarget":123}],123:[function(require,module,exports){
 /**
  * Default property values of interactive objects
  * used by {@link PIXI.interaction.InteractionManager}.
@@ -27739,7 +27776,7 @@ var interactiveTarget = {
 
 module.exports = interactiveTarget;
 
-},{}],123:[function(require,module,exports){
+},{}],124:[function(require,module,exports){
 var Resource = require('resource-loader').Resource,
     core = require('../core'),
     extras = require('../extras'),
@@ -27863,7 +27900,7 @@ module.exports = function ()
     };
 };
 
-},{"../core":30,"../extras":87,"path":5,"resource-loader":15}],124:[function(require,module,exports){
+},{"../core":30,"../extras":87,"path":5,"resource-loader":15}],125:[function(require,module,exports){
 /**
  * @file        Main export of the PIXI loaders library
  * @author      Mat Groves <mat@goodboydigital.com>
@@ -27884,7 +27921,7 @@ module.exports = {
     Resource:           require('resource-loader').Resource
 };
 
-},{"./bitmapFontParser":123,"./loader":125,"./spritesheetParser":126,"./textureParser":127,"resource-loader":15}],125:[function(require,module,exports){
+},{"./bitmapFontParser":124,"./loader":126,"./spritesheetParser":127,"./textureParser":128,"resource-loader":15}],126:[function(require,module,exports){
 var ResourceLoader = require('resource-loader'),
     textureParser = require('./textureParser'),
     spritesheetParser = require('./spritesheetParser'),
@@ -27946,7 +27983,7 @@ var Resource = ResourceLoader.Resource;
 
 Resource.setExtensionXhrType('fnt', Resource.XHR_RESPONSE_TYPE.DOCUMENT);
 
-},{"./bitmapFontParser":123,"./spritesheetParser":126,"./textureParser":127,"resource-loader":15}],126:[function(require,module,exports){
+},{"./bitmapFontParser":124,"./spritesheetParser":127,"./textureParser":128,"resource-loader":15}],127:[function(require,module,exports){
 var Resource = require('resource-loader').Resource,
     path = require('path'),
     core = require('../core'),
@@ -28065,7 +28102,7 @@ module.exports = function ()
     };
 };
 
-},{"../core":30,"async":1,"path":5,"resource-loader":15}],127:[function(require,module,exports){
+},{"../core":30,"async":1,"path":5,"resource-loader":15}],128:[function(require,module,exports){
 var core = require('../core');
 
 module.exports = function ()
@@ -28087,7 +28124,7 @@ module.exports = function ()
     };
 };
 
-},{"../core":30}],128:[function(require,module,exports){
+},{"../core":30}],129:[function(require,module,exports){
 var core = require('../core'),
     tempPoint = new core.Point(),
     tempPolygon = new core.Polygon();
@@ -28565,7 +28602,7 @@ Mesh.DRAW_MODES = {
     TRIANGLES: 1
 };
 
-},{"../core":30}],129:[function(require,module,exports){
+},{"../core":30}],130:[function(require,module,exports){
 var Mesh = require('./Mesh');
 
 /**
@@ -28691,7 +28728,7 @@ Plane.prototype._onTextureUpdate = function ()
     }
 };
 
-},{"./Mesh":128}],130:[function(require,module,exports){
+},{"./Mesh":129}],131:[function(require,module,exports){
 var Mesh = require('./Mesh');
 var core = require('../core');
 
@@ -28904,7 +28941,7 @@ Rope.prototype.updateTransform = function ()
     this.containerUpdateTransform();
 };
 
-},{"../core":30,"./Mesh":128}],131:[function(require,module,exports){
+},{"../core":30,"./Mesh":129}],132:[function(require,module,exports){
 /**
  * @file        Main export of the PIXI extras library
  * @author      Mat Groves <mat@goodboydigital.com>
@@ -28923,7 +28960,7 @@ module.exports = {
     MeshShader:     require('./webgl/MeshShader')
 };
 
-},{"./Mesh":128,"./Plane":129,"./Rope":130,"./webgl/MeshRenderer":132,"./webgl/MeshShader":133}],132:[function(require,module,exports){
+},{"./Mesh":129,"./Plane":130,"./Rope":131,"./webgl/MeshRenderer":133,"./webgl/MeshShader":134}],133:[function(require,module,exports){
 var core = require('../../core'),
     Mesh = require('../Mesh');
 
@@ -29152,7 +29189,7 @@ MeshRenderer.prototype.destroy = function ()
     core.ObjectRenderer.prototype.destroy.call(this);
 };
 
-},{"../../core":30,"../Mesh":128}],133:[function(require,module,exports){
+},{"../../core":30,"../Mesh":129}],134:[function(require,module,exports){
 var core = require('../../core');
 
 /**
@@ -29213,7 +29250,7 @@ module.exports = MeshShader;
 
 core.ShaderManager.registerPlugin('meshShader', MeshShader);
 
-},{"../../core":30}],134:[function(require,module,exports){
+},{"../../core":30}],135:[function(require,module,exports){
 // References:
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/sign
 
@@ -29229,7 +29266,7 @@ if (!Math.sign)
     };
 }
 
-},{}],135:[function(require,module,exports){
+},{}],136:[function(require,module,exports){
 // References:
 // https://github.com/sindresorhus/object-assign
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign
@@ -29239,12 +29276,12 @@ if (!Object.assign)
     Object.assign = require('object-assign');
 }
 
-},{"object-assign":4}],136:[function(require,module,exports){
+},{"object-assign":4}],137:[function(require,module,exports){
 require('./Object.assign');
 require('./requestAnimationFrame');
 require('./Math.sign');
 
-},{"./Math.sign":134,"./Object.assign":135,"./requestAnimationFrame":137}],137:[function(require,module,exports){
+},{"./Math.sign":135,"./Object.assign":136,"./requestAnimationFrame":138}],138:[function(require,module,exports){
 (function (global){
 // References:
 // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
@@ -29314,6 +29351,6 @@ if (!global.cancelAnimationFrame) {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}]},{},[118])(118)
+},{}]},{},[119])(119)
 });
 //# sourceMappingURL=pixi.js.map
